@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DronTech - Admin Panel</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="dashboard-wrapper">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <img src="https://img.icons8.com/nolan/64/drone.png" alt="Logo">
+                <span>DronTech Admin</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a class="nav-item active" data-tab="dashboard">
+                    <i class="fas fa-chart-line" style="margin-right: 10px; font-size: 16px;"></i> Boshqaruv paneli
+                </a>
+                <a class="nav-item" data-tab="orders">
+                    <i class="fas fa-box" style="margin-right: 10px; font-size: 16px;"></i> Buyurtmalar
+                </a>
+                <a class="nav-item" data-tab="products">
+                    <i class="fas fa-helicopter" style="margin-right: 10px; font-size: 16px;"></i> Katalog Boshqaruvi
+                </a>
+                <a class="nav-item" data-tab="sellers">
+                    <i class="fas fa-briefcase" style="margin-right: 10px; font-size: 16px;"></i> Sotuvchilar
+                </a>
+            </nav>
+            
+            <div class="sidebar-user">
+                <div class="user-info">
+                    <h4 id="userName">Admin User</h4>
+                    <p id="userRole">Administrator</p>
+                </div>
+                <button class="btn-logout" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt" style="margin-right: 8px;"></i> Tizimdan Chiqish
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Dashboard Content -->
+        <main class="main-content">
+            
+            <!-- Dashboard Home Section -->
+            <section id="dashboardTab" class="tab-content active">
+                <header class="header-panel">
+                    <div>
+                        <h1>Tizim Ko'rsatkichlari</h1>
+                        <p style="color: var(--text-muted);">DronTech savdo, ehtiyot qismlar va ijara statistikasi</p>
+                    </div>
+                </header>
+                
+                <!-- Stat Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card stat-1">
+                        <div class="stat-info">
+                            <p>Umumiy Tushum</p>
+                            <h2 id="statTotalSales">$0</h2>
+                        </div>
+                        <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+                    </div>
+                    <div class="stat-card stat-2">
+                        <div class="stat-info">
+                            <p>Jami Buyurtmalar</p>
+                            <h2 id="statTotalOrders">0</h2>
+                        </div>
+                        <div class="stat-icon"><i class="fas fa-box"></i></div>
+                    </div>
+                    <div class="stat-card stat-3">
+                        <div class="stat-info">
+                            <p>Katalogdagi Mahsulotlar</p>
+                            <h2 id="statTotalProducts">0</h2>
+                        </div>
+                        <div class="stat-icon"><i class="fas fa-helicopter"></i></div>
+                    </div>
+                    <div class="stat-card stat-4">
+                        <div class="stat-info">
+                            <p>Sotuvchilar (Sellers)</p>
+                            <h2 id="statTotalSellers">0</h2>
+                        </div>
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    </div>
+                </div>
+                
+                <!-- Graphs Grid -->
+                <div class="dashboard-grid-2">
+                    <article class="dashboard-card">
+                        <div class="card-header-flex">
+                            <h3>Savdolar Grafikasi (Turlar bo'yicha)</h3>
+                        </div>
+                        <div class="chart-box">
+                            <canvas id="salesChart"></canvas>
+                        </div>
+                    </article>
+                    <article class="dashboard-card">
+                        <div class="card-header-flex">
+                            <h3>Mashhur Mahsulotlar</h3>
+                        </div>
+                        <div class="chart-box">
+                            <canvas id="productsChart"></canvas>
+                        </div>
+                    </article>
+                </div>
+
+                <!-- Recent Orders and Activity Log Grid -->
+                <div class="dashboard-grid-2">
+                    <!-- Recent Orders -->
+                    <article class="dashboard-card" style="margin-bottom: 0;">
+                        <div class="card-header-flex">
+                            <h3>Oxirgi kelgan buyurtmalar</h3>
+                            <button class="btn-action" onclick="switchTab('orders')">Barchasini ko'rish</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="glass-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Mijoz</th>
+                                        <th>Turi</th>
+                                        <th>Mahsulot</th>
+                                        <th>Tushum</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentOrdersTableBody">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </article>
+                    
+                    <!-- Activity Stream -->
+                    <article class="dashboard-card" style="margin-bottom: 0;">
+                        <div class="card-header-flex">
+                            <h3>Tizim Faoliyati (Activity Stream)</h3>
+                        </div>
+                        <div class="activity-stream" id="activityStreamContainer">
+                            <!-- Dynamic content -->
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Orders Management Section -->
+            <section id="ordersTab" class="tab-content">
+                <header class="header-panel">
+                    <div>
+                        <h1>Buyurtmalar Boshqaruvi</h1>
+                        <p style="color: var(--text-muted);">Kelib tushgan buyurtmalarni (Sotuv/Ijara) tekshirish va sotuvchilarga biriktirish</p>
+                    </div>
+                </header>
+                
+                <div class="search-filter-row">
+                    <div class="filter-item">
+                        <input type="text" id="orderSearchInput" class="form-control" placeholder="Mijoz ismi yoki tel bo'yicha qidirish...">
+                    </div>
+                    <div class="filter-item" style="max-width: 180px;">
+                        <select id="orderFilterCategory" class="form-control">
+                            <option value="">Barcha toifalar</option>
+                            <option value="dron">Dron</option>
+                            <option value="qism">Ehtiyot qism</option>
+                            <option value="ijara">Ijara</option>
+                        </select>
+                    </div>
+                    <div class="filter-item" style="max-width: 180px;">
+                        <select id="orderFilterStatus" class="form-control">
+                            <option value="">Barcha statuslar</option>
+                            <option value="yangi">Yangi</option>
+                            <option value="yetkazilmoqda">Yetkazilmoqda</option>
+                            <option value="yakunlandi">Yakunlandi</option>
+                            <option value="bekor_qilindi">Bekor qilindi</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" id="exportOrdersCsvBtn" style="border-radius: 10px; padding: 10px 20px;">
+                        <i class="fas fa-file-csv" style="margin-right: 8px;"></i> CSV Eksport
+                    </button>
+                </div>
+                
+                <article class="dashboard-card">
+                    <div class="table-responsive">
+                        <table class="glass-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Mijoz va Tel</th>
+                                    <th>Turi</th>
+                                    <th>Mahsulot va Tafsilotlar</th>
+                                    <th>Summa</th>
+                                    <th>Sana</th>
+                                    <th>Seller</th>
+                                    <th>Status</th>
+                                    <th>Amallar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allOrdersTableBody">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            </section>
+
+            <!-- Products Management Section -->
+            <section id="productsTab" class="tab-content">
+                <header class="header-panel">
+                    <div>
+                        <h1>Katalog Boshqaruvi</h1>
+                        <p style="color: var(--text-muted);">Dronlar, ehtiyot qismlar va ijara modellarini qo'shish yoki tahrirlash</p>
+                    </div>
+                    <button class="btn-primary" id="addNewProductBtn">
+                        <span>➕</span> Yangi Mahsulot Qo'shish
+                    </button>
+                </header>
+                
+                <div class="search-filter-row">
+                    <div class="filter-item">
+                        <input type="text" id="productSearchInput" class="form-control" placeholder="Mahsulot nomi yoki tavsifi bo'yicha qidirish...">
+                    </div>
+                    <div class="filter-item" style="max-width: 180px;">
+                        <select id="productFilterCategory" class="form-control">
+                            <option value="">Barcha toifalar</option>
+                            <option value="dron">Dronlar</option>
+                            <option value="qism">Ehtiyot qismlar</option>
+                            <option value="ijara">Dron ijarasi</option>
+                        </select>
+                    </div>
+                    <div class="filter-item" style="max-width: 180px;">
+                        <select id="productFilterStock" class="form-control">
+                            <option value="">Barcha zaxiralar</option>
+                            <option value="instock">Sotuvda bor</option>
+                            <option value="lowstock">Kam qoldi (< 5)</option>
+                            <option value="outofstock">Tugagan (0)</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" id="exportProductsCsvBtn" style="border-radius: 10px; padding: 10px 20px;">
+                        <i class="fas fa-file-csv" style="margin-right: 8px;"></i> CSV Eksport
+                    </button>
+                </div>
+                
+                <article class="dashboard-card">
+                    <div class="admin-products-grid" id="adminProductsGrid">
+                        <!-- Dynamic content -->
+                    </div>
+                </article>
+            </section>
+
+            <!-- Sellers Section -->
+            <section id="sellersTab" class="tab-content">
+                <header class="header-panel">
+                    <div>
+                        <h1>Sotuvchilar (Sellers) Faoliyati</h1>
+                        <p style="color: var(--text-muted);">Sotuvchilar tomonidan yakunlangan buyurtmalar monitoringi</p>
+                    </div>
+                    <button class="btn-primary" id="addNewSellerBtn">
+                        <span>➕</span> Yangi Sotuvchi Qo'shish
+                    </button>
+                </header>
+                
+                <article class="dashboard-card">
+                    <div class="table-responsive">
+                        <table class="glass-table">
+                            <thead>
+                                <tr>
+                                    <th>Sotuvchi</th>
+                                    <th>E-pochta</th>
+                                    <th>Biriktirilgan buyurtmalar</th>
+                                    <th>Yakunlangan savdo</th>
+                                    <th>Savdo hajmi ($)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sellersTableBody">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Toggle Button for Sidebar Mobile -->
+    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+
+    <!-- Order Update Modal -->
+    <div class="modal" id="orderModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 class="modal-title">Buyurtmani Tahrirlash</h2>
+            <form id="orderForm">
+                <input type="hidden" id="editOrderId">
+                <div class="form-group">
+                    <label>Mijoz ismi</label>
+                    <input type="text" id="editOrderCustomer" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Telefon raqami</label>
+                    <input type="text" id="editOrderPhone" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Mahsulot</label>
+                    <input type="text" id="editOrderProduct" class="form-control" readonly>
+                </div>
+                <div id="rentalDetailsContainer" style="display: none; padding: 10px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 8px; margin-bottom: 20px;">
+                    <p style="font-size: 13px; color: var(--primary); font-weight: 600;">Ijara tafsilotlari:</p>
+                    <p style="font-size: 13px; color: var(--text-muted);" id="rentalDetailsText">Muddati: 0 kun, Sanadan: -</p>
+                </div>
+                <div class="form-group">
+                    <label>Sotuvchini biriktirish (Seller)</label>
+                    <select id="editOrderAssignee" class="form-control">
+                        <option value="">Biriktirilmagan</option>
+                        <!-- Dynamic Sellers -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Buyurtma statusi</label>
+                    <select id="editOrderStatus" class="form-control">
+                        <option value="yangi">Yangi</option>
+                        <option value="yetkazilmoqda">Yetkazilmoqda / Yo'lda</option>
+                        <option value="yakunlandi">Yakunlandi / Yetkazildi</option>
+                        <option value="bekor_qilindi">Bekor qilindi</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Buyurtma bosqichi</label>
+                    <div class="status-timeline" id="orderTimeline">
+                        <div class="timeline-progress" id="orderTimelineProgress"></div>
+                        <div class="timeline-step" data-status="yangi">
+                            <div class="timeline-dot">1</div>
+                            <div class="timeline-label">Yangi</div>
+                        </div>
+                        <div class="timeline-step" data-status="yetkazilmoqda">
+                            <div class="timeline-dot">2</div>
+                            <div class="timeline-label">Yetkazilmoqda</div>
+                        </div>
+                        <div class="timeline-step" data-status="yakunlandi">
+                            <div class="timeline-dot">3</div>
+                            <div class="timeline-label">Yakunlandi</div>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Saqlash</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Product Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 class="modal-title" id="productModalTitle">Yangi Mahsulot Qo'shish</h2>
+            <form id="productForm">
+                <input type="hidden" id="editProductId">
+                
+                <div class="form-group">
+                    <label for="prodCategory">Toifasi (Turi)</label>
+                    <select id="prodCategory" class="form-control" required>
+                        <option value="dron">Dronlar (Sotuv)</option>
+                        <option value="qism">Ehtiyot Qismlar (Sotuv)</option>
+                        <option value="ijara">Dron Ijarasi (Kunbay ijara)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="prodName">Nomi</label>
+                    <input type="text" id="prodName" class="form-control" placeholder="Masalan: DJI Mavic 3 Pro" required>
+                </div>
+                
+                <div class="form-group">
+                    <label id="priceLabel" for="prodPrice">Narxi ($)</label>
+                    <input type="number" id="prodPrice" class="form-control" placeholder="999" required min="1" max="1000">
+                </div>
+                
+                <div class="form-group" id="prodStockGroup">
+                    <label for="prodStock">Ombordagi soni (Stock)</label>
+                    <input type="number" id="prodStock" class="form-control" placeholder="10" min="0">
+                    <span style="font-size: 11px; color: var(--text-muted);">Izoh: Ijara toifasi uchun zaxira belgilanmaydi (cheksiz).</span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="prodDesc">Tavsifi</label>
+                    <textarea id="prodDesc" class="form-control" rows="3" placeholder="Mahsulot haqida batafsil ma'lumot..." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="prodImg">Rasm manzili (URL)</label>
+                    <input type="url" id="prodImg" class="form-control" placeholder="https://images.unsplash.com/..." required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Saqlash</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Seller Modal -->
+    <div class="modal" id="sellerModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 class="modal-title">Yangi Sotuvchi Qo'shish</h2>
+            <form id="sellerForm">
+                <div class="form-group">
+                    <label for="sellerName">Sotuvchi Ismi</label>
+                    <input type="text" id="sellerName" class="form-control" placeholder="Masalan: Anvar Eshonov" required>
+                </div>
+                <div class="form-group">
+                    <label for="sellerEmail">Elektron Pochta (E-mail)</label>
+                    <input type="email" id="sellerEmail" class="form-control" placeholder="seller2@gmail.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="sellerPassword">Parol</label>
+                    <input type="password" id="sellerPassword" class="form-control" placeholder="Parol kiriting" required minlength="6">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Sotuvchini Saqlash</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="dashboard.js"></script>
+    
+    <script>
+        // Check authentication
+        const currentUser = DB.checkAuth('admin');
+        if (currentUser) {
+            document.getElementById("userName").textContent = currentUser.name;
+        }
+
+        // Charts references
+        let salesChart = null;
+        let productsChart = null;
+
+        // Navigation
+        document.querySelectorAll(".nav-item").forEach(item => {
+            item.addEventListener("click", () => {
+                const tab = item.getAttribute("data-tab");
+                switchTab(tab);
+                
+                // On mobile, close sidebar
+                document.getElementById("sidebar").classList.remove("active");
+            });
+        });
+
+        // Toggle Sidebar on mobile
+        document.getElementById("sidebarToggle").addEventListener("click", () => {
+            document.getElementById("sidebar").classList.toggle("active");
+        });
+
+        // Logout action
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+            DB.logout();
+        });
+
+        // Category Selection Event to adapt price label and toggle stock field visibility
+        const prodCategorySelect = document.getElementById("prodCategory");
+        const priceLabel = document.getElementById("priceLabel");
+        const prodStockGroup = document.getElementById("prodStockGroup");
+        prodCategorySelect.addEventListener("change", () => {
+            const val = prodCategorySelect.value;
+            if (val === 'ijara') {
+                priceLabel.textContent = "Kunlik Ijara Narxi ($ / kun)";
+                prodStockGroup.style.display = 'none';
+            } else {
+                priceLabel.textContent = "Narxi ($)";
+                prodStockGroup.style.display = 'block';
+            }
+        });
+
+        // Toast Notification helper
+        function showNotification(title, message, iconClass = "fas fa-bell") {
+            const container = document.getElementById("toastContainer");
+            if (!container) return;
+            
+            const toast = document.createElement("div");
+            toast.className = "toast-notification";
+            toast.innerHTML = `
+                <div class="toast-icon"><i class="${iconClass}"></i></div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <div class="toast-close">&times;</div>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add("show");
+            }, 10);
+            
+            const dismissTimer = setTimeout(() => {
+                toast.classList.remove("show");
+                setTimeout(() => toast.remove(), 400);
+            }, 4000);
+            
+            toast.querySelector(".toast-close").addEventListener("click", () => {
+                clearTimeout(dismissTimer);
+                toast.classList.remove("show");
+                setTimeout(() => toast.remove(), 400);
+            });
+        }
+
+        // Timeline visualization helper
+        function updateTimelineVisual(status) {
+            const steps = document.querySelectorAll("#orderTimeline .timeline-step");
+            const progress = document.getElementById("orderTimelineProgress");
+            
+            const statuses = ['yangi', 'yetkazilmoqda', 'yakunlandi'];
+            const currentIdx = statuses.indexOf(status);
+            
+            steps.forEach((step) => {
+                step.classList.remove("active", "completed");
+                const stepStatus = step.getAttribute("data-status");
+                if (stepStatus === status) {
+                    step.classList.add("active");
+                } else if (statuses.indexOf(stepStatus) < currentIdx) {
+                    step.classList.add("completed");
+                }
+            });
+            
+            if (currentIdx === -1) {
+                progress.style.width = '0%';
+            } else {
+                progress.style.width = (currentIdx * 40) + '%';
+            }
+        }
+
+        // Setup timeline step click listeners
+        document.querySelectorAll("#orderTimeline .timeline-step").forEach(step => {
+            step.addEventListener("click", () => {
+                const status = step.getAttribute("data-status");
+                document.getElementById("editOrderStatus").value = status;
+                updateTimelineVisual(status);
+            });
+        });
+
+        // Dropdown select status listener to update timeline
+        document.getElementById("editOrderStatus").addEventListener("change", (e) => {
+            updateTimelineVisual(e.target.value);
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll(".nav-item").forEach(item => {
+                item.classList.remove("active");
+                if(item.getAttribute("data-tab") === tabId) item.classList.add("active");
+            });
+
+            document.querySelectorAll(".tab-content").forEach(tab => {
+                tab.classList.remove("active");
+            });
+
+            const currentTab = document.getElementById(tabId + "Tab");
+            if (currentTab) currentTab.classList.add("active");
+
+            // Re-render corresponding data
+            if (tabId === 'dashboard') {
+                renderDashboard();
+            } else if (tabId === 'orders') {
+                renderOrders();
+            } else if (tabId === 'products') {
+                renderProducts();
+            } else if (tabId === 'sellers') {
+                renderSellers();
+            }
+        }
+
+        // Format Currency
+        function formatCurr(val) {
+            return '$' + parseFloat(val).toLocaleString();
+        }
+
+        // Format Date
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('uz-UZ') + ' ' + date.toLocaleTimeString('uz-UZ', {hour: '2-digit', minute:'2-digit'});
+        }
+
+        // Get readable category text
+        function getCategoryText(cat) {
+            if (cat === 'dron') return 'Dron';
+            if (cat === 'qism') return 'Ehtiyot qism';
+            if (cat === 'ijara') return 'Ijara';
+            return cat;
+        }
+
+        // Stock Badge generator
+        function getStockBadgeHtml(p) {
+            if (p.category === 'ijara') {
+                return `<span class="badge-stock instock">Cheksiz</span>`;
+            }
+            const stock = p.stock === undefined || p.stock === null ? 0 : parseInt(p.stock);
+            if (stock === 0) {
+                return `<span class="badge-stock outofstock">Tugagan (0)</span>`;
+            } else if (stock < 5) {
+                return `<span class="badge-stock lowstock">Kam qoldi (${stock})</span>`;
+            } else {
+                return `<span class="badge-stock instock">Sotuvda bor (${stock})</span>`;
+            }
+        }
+
+        // Render Dashboard Stats, Charts and Activity Stream
+        function renderDashboard() {
+            const orders = DB.getOrders();
+            const products = DB.getProducts();
+            const users = DB.getUsers().filter(u => u.role === 'seller');
+
+            // Unique sellers
+            const sellersEmails = [...new Set(users.map(u => u.email))];
+
+            // 1. Stats
+            const completedOrders = orders.filter(o => o.status === 'yakunlandi');
+            const totalSalesSum = completedOrders.reduce((sum, o) => sum + o.price, 0);
+
+            document.getElementById("statTotalSales").textContent = formatCurr(totalSalesSum);
+            document.getElementById("statTotalOrders").textContent = orders.length;
+            document.getElementById("statTotalProducts").textContent = products.length;
+            document.getElementById("statTotalSellers").textContent = sellersEmails.length;
+
+            // 2. Recent orders table (last 5)
+            const recentOrders = [...orders].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+            const recentOrdersBody = document.getElementById("recentOrdersTableBody");
+            recentOrdersBody.innerHTML = '';
+
+            recentOrders.forEach(o => {
+                const tr = document.createElement("tr");
+                const orderTypeBadge = o.category === 'ijara' 
+                    ? `<span class="badge-status yetkazilmoqda" style="font-size: 11px;">Ijara</span>`
+                    : `<span class="badge-status yakunlandi" style="font-size: 11px;">Sotuv</span>`;
+                tr.innerHTML = `
+                    <td><strong>#${o.id.split('-')[1] || o.id}</strong></td>
+                    <td>${o.customerName}</td>
+                    <td>${orderTypeBadge}</td>
+                    <td>${o.productName}</td>
+                    <td>${formatCurr(o.price)}</td>
+                    <td><span class="badge-status ${o.status}">${o.status}</span></td>
+                `;
+                recentOrdersBody.appendChild(tr);
+            });
+
+            // 3. Render activity stream
+            renderActivityLogs();
+
+            // 4. Render charts
+            renderCharts(orders, products);
+        }
+
+        // Render Activity Logs Stream
+        function renderActivityLogs() {
+            const logs = DB.getLogs();
+            const container = document.getElementById("activityStreamContainer");
+            if (!container) return;
+            container.innerHTML = '';
+            
+            if (logs.length === 0) {
+                container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 20px; font-style: italic;">Faoliyatlar topilmadi.</div>`;
+                return;
+            }
+
+            logs.forEach(log => {
+                const div = document.createElement("div");
+                div.className = "activity-item";
+                div.innerHTML = `
+                    <div class="activity-icon"><i class="fas fa-history"></i></div>
+                    <div class="activity-details">
+                        <span class="activity-user">${log.user}</span>
+                        <span class="activity-action">${log.action}</span>
+                        <div class="activity-time">${formatDate(log.date)}</div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Render Charts with Chart.js
+        function renderCharts(orders, products) {
+            if (salesChart) salesChart.destroy();
+            if (productsChart) productsChart.destroy();
+
+            // Total revenue by categories
+            const catSales = { dron: 0, qism: 0, ijara: 0 };
+            orders.filter(o => o.status === 'yakunlandi').forEach(o => {
+                const cat = o.category || 'dron';
+                if (catSales[cat] !== undefined) catSales[cat] += o.price;
+            });
+
+            const salesCtx = document.getElementById('salesChart').getContext('2d');
+            
+            // Create premium gradients
+            const gradDron = salesCtx.createLinearGradient(0, 0, 0, 250);
+            gradDron.addColorStop(0, 'rgba(255, 109, 0, 0.8)');
+            gradDron.addColorStop(1, 'rgba(255, 109, 0, 0.15)');
+            
+            const gradQism = salesCtx.createLinearGradient(0, 0, 0, 250);
+            gradQism.addColorStop(0, 'rgba(0, 223, 216, 0.8)');
+            gradQism.addColorStop(1, 'rgba(0, 223, 216, 0.15)');
+            
+            const gradIjara = salesCtx.createLinearGradient(0, 0, 0, 250);
+            gradIjara.addColorStop(0, 'rgba(121, 40, 202, 0.8)');
+            gradIjara.addColorStop(1, 'rgba(121, 40, 202, 0.15)');
+
+            salesChart = new Chart(salesCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Dronlar Sotuvi', 'Ehtiyot Qismlar', 'Ijara Tushumlari'],
+                    datasets: [{
+                        label: 'Umumiy Tushum ($)',
+                        data: [catSales.dron, catSales.qism, catSales.ijara],
+                        backgroundColor: [gradDron, gradQism, gradIjara],
+                        borderColor: ['#ff6d00', '#00dfd8', '#7928ca'],
+                        borderWidth: 2,
+                        borderRadius: 12,
+                        hoverBorderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+
+            // Popular products
+            const prodStats = {};
+            products.forEach(p => prodStats[p.name] = 0);
+            orders.forEach(o => {
+                if (prodStats[o.productName] !== undefined) prodStats[o.productName]++;
+            });
+
+            const sortedProds = Object.entries(prodStats)
+                .sort((a,b) => b[1] - a[1])
+                .slice(0, 5);
+
+            const prodLabels = sortedProds.map(p => p[0]);
+            const prodData = sortedProds.map(p => p[1]);
+
+            const prodCtx = document.getElementById('productsChart').getContext('2d');
+            productsChart = new Chart(prodCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: prodLabels.length > 0 ? prodLabels : ['Ma\'lumot yo\'q'],
+                    datasets: [{
+                        data: prodData.length > 0 ? prodData : [1],
+                        backgroundColor: [
+                            'rgba(255, 109, 0, 0.85)',
+                            'rgba(121, 40, 202, 0.85)',
+                            'rgba(0, 223, 216, 0.85)',
+                            'rgba(0, 242, 254, 0.85)',
+                            'rgba(240, 54, 150, 0.85)'
+                        ],
+                        borderColor: 'rgba(20, 28, 47, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#94a3b8', font: { family: 'Outfit', size: 11 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Filter & Search listeners for Orders
+        document.getElementById("orderSearchInput").addEventListener("input", renderOrders);
+        document.getElementById("orderFilterCategory").addEventListener("change", renderOrders);
+        document.getElementById("orderFilterStatus").addEventListener("change", renderOrders);
+
+        // Render Orders tab
+        function renderOrders() {
+            const orders = DB.getOrders();
+            const tableBody = document.getElementById("allOrdersTableBody");
+            tableBody.innerHTML = '';
+
+            const searchVal = document.getElementById("orderSearchInput").value.toLowerCase().trim();
+            const catVal = document.getElementById("orderFilterCategory").value;
+            const statusVal = document.getElementById("orderFilterStatus").value;
+
+            // Filtration
+            const filteredOrders = orders.filter(o => {
+                const matchesSearch = o.customerName.toLowerCase().includes(searchVal) || 
+                                      o.phone.toLowerCase().includes(searchVal) ||
+                                      o.id.toLowerCase().includes(searchVal);
+                const matchesCategory = catVal === "" || o.category === catVal;
+                const matchesStatus = statusVal === "" || o.status === statusVal;
+                return matchesSearch && matchesCategory && matchesStatus;
+            });
+
+            if (filteredOrders.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 30px;">Buyurtmalar topilmadi.</td></tr>`;
+                return;
+            }
+
+            filteredOrders.forEach(o => {
+                const tr = document.createElement("tr");
+                const assignedSellerText = o.assignedTo ? o.assignedTo : '<span style="color: var(--text-muted); font-style: italic;">Biriktirilmagan</span>';
+                
+                const orderTypeBadge = o.category === 'ijara' 
+                    ? `<span class="badge-status yetkazilmoqda" style="font-size: 11px;">Ijara</span>`
+                    : `<span class="badge-status yakunlandi" style="font-size: 11px;">Sotuv</span>`;
+
+                let detailsHtml = `<strong>${o.productName}</strong>`;
+                if (o.category === 'ijara' && o.rentalDays) {
+                    detailsHtml += `<div style="font-size: 12px; color: var(--primary); margin-top: 3px;">📅 Boshlanishi: ${o.rentalStartDate} (${o.rentalDays} kun)</div>`;
+                }
+                if (o.notes) {
+                    detailsHtml += `<div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">💬 ${o.notes}</div>`;
+                }
+                
+                tr.innerHTML = `
+                    <td><strong>#${o.id.split('-')[1] || o.id}</strong></td>
+                    <td>
+                        <div><strong>${o.customerName}</strong></div>
+                        <div style="font-size: 12px; color: var(--text-muted);">${o.phone}</div>
+                    </td>
+                    <td>${orderTypeBadge}</td>
+                    <td style="max-width: 250px;">${detailsHtml}</td>
+                    <td style="font-weight: bold; color: var(--text-main);">${formatCurr(o.price)}</td>
+                    <td>${formatDate(o.date)}</td>
+                    <td>${assignedSellerText}</td>
+                    <td><span class="badge-status ${o.status}">${o.status}</span></td>
+                    <td>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn-action" onclick="openEditOrderModal('${o.id}')">✏️</button>
+                            <button class="btn-action-delete" onclick="deleteOrder('${o.id}')">🗑️</button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // Order Modal helpers
+        const orderModal = document.getElementById("orderModal");
+        const orderForm = document.getElementById("orderForm");
+
+        function openEditOrderModal(orderId) {
+            const orders = DB.getOrders();
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+
+            document.getElementById("editOrderId").value = order.id;
+            document.getElementById("editOrderCustomer").value = order.customerName;
+            document.getElementById("editOrderPhone").value = order.phone;
+            document.getElementById("editOrderProduct").value = order.productName;
+            
+            const rentalContainer = document.getElementById("rentalDetailsContainer");
+            const rentalText = document.getElementById("rentalDetailsText");
+
+            if (order.category === 'ijara' && order.rentalDays) {
+                rentalContainer.style.display = 'block';
+                rentalText.textContent = `Muddati: ${order.rentalDays} kun, Boshlanish sanasi: ${order.rentalStartDate}`;
+            } else {
+                rentalContainer.style.display = 'none';
+            }
+
+            // Populate sellers dropdown
+            const sellersDropdown = document.getElementById("editOrderAssignee");
+            sellersDropdown.innerHTML = '<option value="">Biriktirilmagan</option>';
+            
+            const sellers = DB.getUsers().filter(u => u.role === 'seller');
+            const uniqueSellers = [];
+            const seen = new Set();
+            sellers.forEach(s => {
+                if (!seen.has(s.email)) {
+                    seen.add(s.email);
+                    uniqueSellers.push(s);
+                }
+            });
+
+            uniqueSellers.forEach(s => {
+                const opt = document.createElement("option");
+                opt.value = s.email;
+                opt.textContent = `${s.name} (${s.email})`;
+                if (order.assignedTo === s.email) opt.selected = true;
+                sellersDropdown.appendChild(opt);
+            });
+
+            document.getElementById("editOrderStatus").value = order.status;
+            updateTimelineVisual(order.status);
+
+            orderModal.classList.add("show");
+        }
+
+        // Save order changes
+        orderForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const orderId = document.getElementById("editOrderId").value;
+            const assignee = document.getElementById("editOrderAssignee").value || null;
+            const status = document.getElementById("editOrderStatus").value;
+
+            const orders = DB.getOrders();
+            const index = orders.findIndex(o => o.id === orderId);
+            if (index !== -1) {
+                const order = orders[index];
+                const oldStatus = order.status;
+                const oldAssignee = order.assignedTo;
+                
+                let finalStatus = status;
+                if (assignee && status === 'yangi') {
+                    finalStatus = 'yetkazilmoqda';
+                }
+                
+                orders[index].assignedTo = assignee;
+                orders[index].status = finalStatus;
+                DB.saveOrders(orders);
+                
+                // Add log details
+                if (oldStatus !== finalStatus) {
+                    DB.addLog(currentUser.email, `#${order.id.split('-')[1] || order.id} buyurtma holatini "${oldStatus}" dan "${finalStatus}" ga o'zgartirdi.`);
+                    
+                    // Trigger SMS / Telegram simulation toast notification
+                    let msg = "";
+                    let title = "";
+                    if (finalStatus === 'yetkazilmoqda') {
+                        title = "SMS Bildirishnoma (Simulyatsiya)";
+                        msg = `Mijoz ${order.customerName} (${order.phone}) ga xabar yuborildi: "Hurmatli mijoz, buyurtmangiz yo'lga chiqdi."`;
+                        showNotification(title, msg, "fas fa-paper-plane");
+                    } else if (finalStatus === 'yakunlandi') {
+                        title = "Telegram Xabar (Simulyatsiya)";
+                        msg = `Mijoz ${order.customerName} (${order.phone}) ga Telegram orqali chek va xabar yuborildi: "Buyurtmangiz muvaffaqiyatli yetkazildi."`;
+                        showNotification(title, msg, "fab fa-telegram");
+                    }
+                }
+                if (oldAssignee !== assignee) {
+                    DB.addLog(currentUser.email, `#${order.id.split('-')[1] || order.id} buyurtmani ${assignee || 'hech kim'}ga biriktirdi.`);
+                    showNotification("Sotuvchi Biriktirildi", `Buyurtma ${assignee || 'hech kim'}ga yo'naltirildi.`, "fas fa-user-check");
+                }
+                
+                orderModal.classList.remove("show");
+                renderOrders();
+            }
+        });
+
+        // Delete order
+        function deleteOrder(orderId) {
+            if (confirm("Haqiqatan ham ushbu buyurtmani o'chirmoqchisiz?")) {
+                let orders = DB.getOrders();
+                const order = orders.find(o => o.id === orderId);
+                orders = orders.filter(o => o.id !== orderId);
+                DB.saveOrders(orders);
+                if (order) {
+                    DB.addLog(currentUser.email, `#${order.id.split('-')[1] || order.id} buyurtmani tizimdan butunlay o'chirdi.`);
+                }
+                renderOrders();
+            }
+        }
+
+        // Filter & Search listeners for Products
+        document.getElementById("productSearchInput").addEventListener("input", renderProducts);
+        document.getElementById("productFilterCategory").addEventListener("change", renderProducts);
+        document.getElementById("productFilterStock").addEventListener("change", renderProducts);
+
+        // Render Products Tab
+        function renderProducts() {
+            const products = DB.getProducts();
+            const grid = document.getElementById("adminProductsGrid");
+            grid.innerHTML = '';
+
+            const searchVal = document.getElementById("productSearchInput").value.toLowerCase().trim();
+            const catVal = document.getElementById("productFilterCategory").value;
+            const stockVal = document.getElementById("productFilterStock").value;
+
+            // Filtration
+            const filteredProducts = products.filter(p => {
+                const matchesSearch = p.name.toLowerCase().includes(searchVal) || 
+                                      p.desc.toLowerCase().includes(searchVal);
+                const matchesCategory = catVal === "" || p.category === catVal;
+                
+                let matchesStock = true;
+                const stock = p.stock === undefined || p.stock === null ? 0 : parseInt(p.stock);
+                if (p.category === 'ijara') {
+                    matchesStock = (stockVal === "" || stockVal === 'instock'); // rentals are infinite
+                } else {
+                    if (stockVal === 'instock') {
+                        matchesStock = stock >= 5;
+                    } else if (stockVal === 'lowstock') {
+                        matchesStock = stock > 0 && stock < 5;
+                    } else if (stockVal === 'outofstock') {
+                        matchesStock = stock === 0;
+                    }
+                }
+                
+                return matchesSearch && matchesCategory && matchesStock;
+            });
+
+            if (filteredProducts.length === 0) {
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 30px;">Katalogda mos keladigan mahsulot topilmadi.</div>`;
+                return;
+            }
+
+            filteredProducts.forEach(p => {
+                const card = document.createElement("div");
+                card.className = "admin-product-card";
+                
+                const catText = getCategoryText(p.category);
+                const priceText = p.category === 'ijara' ? `${formatCurr(p.price)} / kun` : formatCurr(p.price);
+                const stockBadge = getStockBadgeHtml(p);
+
+                card.innerHTML = `
+                    <div class="admin-product-img">
+                        <img src="${p.image}" alt="${p.name}" onerror="this.src='https://images.unsplash.com/photo-1527977966376-1c8408f9f108?q=80&w=800'">
+                    </div>
+                    <div class="admin-product-body">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 5px; margin-bottom: 8px;">
+                            <span class="badge-status yangi" style="font-size: 10px; text-transform: uppercase;">${catText}</span>
+                            ${stockBadge}
+                        </div>
+                        <h4>${p.name}</h4>
+                        <div class="price">${priceText}</div>
+                        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; height: 36px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${p.desc}</p>
+                        <div class="admin-product-actions">
+                            <button class="btn-action" onclick="openEditProductModal('${p.id}')">Tahrirlash</button>
+                            <button class="btn-action-delete" onclick="deleteProduct('${p.id}')">O'chirish</button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Product Modal Management
+        const productModal = document.getElementById("productModal");
+        const productForm = document.getElementById("productForm");
+
+        document.getElementById("addNewProductBtn").addEventListener("click", () => {
+            document.getElementById("productModalTitle").textContent = "Yangi Mahsulot Qo'shish";
+            document.getElementById("editProductId").value = "";
+            productForm.reset();
+            priceLabel.textContent = "Narxi ($)";
+            prodStockGroup.style.display = 'block';
+            productModal.classList.add("show");
+        });
+
+        function openEditProductModal(prodId) {
+            const products = DB.getProducts();
+            const prod = products.find(p => p.id === prodId);
+            if (!prod) return;
+
+            document.getElementById("productModalTitle").textContent = "Mahsulotni Tahrirlash";
+            document.getElementById("editProductId").value = prod.id;
+            
+            const categorySelect = document.getElementById("prodCategory");
+            categorySelect.value = prod.category || 'dron';
+            
+            if (prod.category === 'ijara') {
+                priceLabel.textContent = "Kunlik Ijara Narxi ($ / kun)";
+                prodStockGroup.style.display = 'none';
+            } else {
+                priceLabel.textContent = "Narxi ($)";
+                prodStockGroup.style.display = 'block';
+            }
+
+            document.getElementById("prodName").value = prod.name;
+            document.getElementById("prodPrice").value = prod.price;
+            document.getElementById("prodStock").value = prod.stock !== undefined && prod.stock !== null ? prod.stock : "";
+            document.getElementById("prodDesc").value = prod.desc;
+            document.getElementById("prodImg").value = prod.image;
+
+            productModal.classList.add("show");
+        }
+
+        productForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const id = document.getElementById("editProductId").value;
+            const category = document.getElementById("prodCategory").value;
+            const name = document.getElementById("prodName").value.trim();
+            const price = parseFloat(document.getElementById("prodPrice").value);
+            const desc = document.getElementById("prodDesc").value.trim();
+            const image = document.getElementById("prodImg").value.trim();
+            
+            // Set stock to null if category is rental, otherwise parse int
+            const stock = category === 'ijara' ? null : (parseInt(document.getElementById("prodStock").value) || 0);
+
+            if (price > 1000) {
+                alert("Mahsulot narxi 1000$ dan oshmasligi kerak!");
+                return;
+            }
+
+            let products = DB.getProducts();
+
+            if (id) {
+                // Edit existing
+                const idx = products.findIndex(p => p.id === id);
+                if (idx !== -1) {
+                    products[idx] = { ...products[idx], category, name, price, stock, desc, image };
+                    DB.addLog(currentUser.email, `Katalogdagi "${name}" mahsulotini tahrirladi (Zaxira: ${stock === null ? 'Cheksiz' : stock}).`);
+                }
+            } else {
+                // Create new
+                const newId = "prod-" + Date.now();
+                products.push({ id: newId, category, name, price, stock, desc, image });
+                DB.addLog(currentUser.email, `Katalogga yangi "${name}" mahsulotini qo'shdi (Narxi: $${price}, Zaxira: ${stock === null ? 'Cheksiz' : stock}).`);
+            }
+
+            DB.saveProducts(products);
+            productModal.classList.remove("show");
+            renderProducts();
+            showNotification("Katalog Yangilandi", `"${name}" mahsuloti saqlandi.`, "fas fa-check-circle");
+        });
+
+        function deleteProduct(prodId) {
+            if (confirm("Haqiqatan ham ushbu mahsulotni katalogdan o'chirmoqchisiz?")) {
+                let products = DB.getProducts();
+                const prod = products.find(p => p.id === prodId);
+                products = products.filter(p => p.id !== prodId);
+                DB.saveProducts(products);
+                if (prod) {
+                    DB.addLog(currentUser.email, `Katalogdan "${prod.name}" mahsulotini butunlay o'chirdi.`);
+                }
+                renderProducts();
+                showNotification("Mahsulot O'chirildi", `"${prod ? prod.name : ''}" o'chirildi.`, "fas fa-trash");
+            }
+        }
+
+        // Add Seller Modal Management
+        const sellerModal = document.getElementById("sellerModal");
+        const sellerForm = document.getElementById("sellerForm");
+
+        document.getElementById("addNewSellerBtn").addEventListener("click", () => {
+            sellerForm.reset();
+            sellerModal.classList.add("show");
+        });
+
+        sellerForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const name = document.getElementById("sellerName").value.trim();
+            const email = document.getElementById("sellerEmail").value.trim();
+            const password = document.getElementById("sellerPassword").value;
+
+            const res = DB.registerSeller(name, email, password);
+            if (res.success) {
+                sellerModal.classList.remove("show");
+                renderSellers();
+                showNotification("Sotuvchi Qo'shildi", `Yangi sotuvchi "${name}" muvaffaqiyatli ro'yxatdan o'tdi.`, "fas fa-user-plus");
+            } else {
+                alert(res.message);
+            }
+        });
+
+        // Render Sellers Tab
+        function renderSellers() {
+            const orders = DB.getOrders();
+            const users = DB.getUsers().filter(u => u.role === 'seller');
+            const tableBody = document.getElementById("sellersTableBody");
+            tableBody.innerHTML = '';
+
+            // Deduplicate sellers list
+            const uniqueSellers = [];
+            const seen = new Set();
+            users.forEach(u => {
+                if (!seen.has(u.email)) {
+                    seen.add(u.email);
+                    uniqueSellers.push(u);
+                }
+            });
+
+            if (uniqueSellers.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">Hozircha sotuvchilar mavjud emas.</td></tr>`;
+                return;
+            }
+
+            uniqueSellers.forEach(s => {
+                const sellerOrders = orders.filter(o => o.assignedTo === s.email);
+                const completedOrders = sellerOrders.filter(o => o.status === 'yakunlandi');
+                const totalSalesVal = completedOrders.reduce((sum, o) => sum + o.price, 0);
+
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td><strong>${s.name}</strong></td>
+                    <td>${s.email}</td>
+                    <td>${sellerOrders.length} ta buyurtma</td>
+                    <td>${completedOrders.length} ta yetkazilgan</td>
+                    <td style="color: var(--primary); font-weight: 800;">${formatCurr(totalSalesVal)}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // CSV Export helper function
+        function downloadCSV(filename, csvContent) {
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", filename);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        // Export Orders to CSV
+        document.getElementById("exportOrdersCsvBtn").addEventListener("click", () => {
+            const orders = DB.getOrders();
+            const searchVal = document.getElementById("orderSearchInput").value.toLowerCase().trim();
+            const catVal = document.getElementById("orderFilterCategory").value;
+            const statusVal = document.getElementById("orderFilterStatus").value;
+
+            // Filtration before export
+            const filteredOrders = orders.filter(o => {
+                const matchesSearch = o.customerName.toLowerCase().includes(searchVal) || 
+                                      o.phone.toLowerCase().includes(searchVal) ||
+                                      o.id.toLowerCase().includes(searchVal);
+                const matchesCategory = catVal === "" || o.category === catVal;
+                const matchesStatus = statusVal === "" || o.status === statusVal;
+                return matchesSearch && matchesCategory && matchesStatus;
+            });
+
+            let csv = "ID,Mijoz Ismi,Telefon Raqami,Toifasi,Mahsulot Nomi,Summa ($),Sana,Sotuvchi,Status\n";
+            filteredOrders.forEach(o => {
+                csv += `"${o.id}","${o.customerName}","${o.phone}","${o.category}","${o.productName}",${o.price},"${o.date}","${o.assignedTo || ''}","${o.status}"\n`;
+            });
+
+            downloadCSV("drontech_orders.csv", csv);
+            showNotification("Eksport Muvaffaqiyatli", "Buyurtmalar ro'yxati CSV shaklida yuklab olindi.", "fas fa-file-download");
+        });
+
+        // Export Products to CSV
+        document.getElementById("exportProductsCsvBtn").addEventListener("click", () => {
+            const products = DB.getProducts();
+            const searchVal = document.getElementById("productSearchInput").value.toLowerCase().trim();
+            const catVal = document.getElementById("productFilterCategory").value;
+            const stockVal = document.getElementById("productFilterStock").value;
+
+            // Filtration before export
+            const filteredProducts = products.filter(p => {
+                const matchesSearch = p.name.toLowerCase().includes(searchVal) || 
+                                      p.desc.toLowerCase().includes(searchVal);
+                const matchesCategory = catVal === "" || p.category === catVal;
+                
+                let matchesStock = true;
+                const stock = p.stock === undefined || p.stock === null ? 0 : parseInt(p.stock);
+                if (p.category === 'ijara') {
+                    matchesStock = (stockVal === "" || stockVal === 'instock');
+                } else {
+                    if (stockVal === 'instock') {
+                        matchesStock = stock >= 5;
+                    } else if (stockVal === 'lowstock') {
+                        matchesStock = stock > 0 && stock < 5;
+                    } else if (stockVal === 'outofstock') {
+                        matchesStock = stock === 0;
+                    }
+                }
+                return matchesSearch && matchesCategory && matchesStock;
+            });
+
+            let csv = "ID,Toifasi,Mahsulot Nomi,Narxi ($),Zaxira (Stock),Tavsifi\n";
+            filteredProducts.forEach(p => {
+                const stockStr = p.stock === null || p.stock === undefined ? "Cheksiz" : p.stock;
+                csv += `"${p.id}","${p.category}","${p.name}",${p.price},"${stockStr}","${p.desc.replace(/"/g, '""')}"\n`;
+            });
+
+            downloadCSV("drontech_products.csv", csv);
+            showNotification("Eksport Muvaffaqiyatli", "Mahsulotlar katalogi CSV shaklida yuklab olindi.", "fas fa-file-download");
+        });
+
+        // Modal Close triggers
+        document.querySelectorAll(".close-modal, .modal").forEach(el => {
+            el.addEventListener("click", (e) => {
+                if (e.target === el || el.classList.contains("close-modal")) {
+                    orderModal.classList.remove("show");
+                    productModal.classList.remove("show");
+                    sellerModal.classList.remove("show");
+                }
+            });
+        });
+
+        // Initialize dashboard on load
+        window.addEventListener("load", () => {
+            renderDashboard();
+        });
+    </script>
+</body>
+</html>

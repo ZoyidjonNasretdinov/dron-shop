@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DronTech: Eng Zo'r Dronlar Savdosi</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(7, 11, 20, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 14px;
+            transition: var(--transition);
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(255, 109, 0, 0.2);
+        }
+        
+        /* Shopping Cart Drawer styles */
+        .cart-sidebar {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: rgba(7, 11, 20, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 2100;
+            transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+        }
+        .cart-sidebar.open {
+            right: 0;
+        }
+        @media (max-width: 480px) {
+            .cart-sidebar {
+                width: 100% !important;
+                right: -100% !important;
+            }
+            .cart-sidebar.open {
+                right: 0 !important;
+            }
+        }
+        
+        .cart-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 12px;
+            transition: var(--transition);
+        }
+        .cart-item:hover {
+            border-color: rgba(255, 109, 0, 0.2);
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .cart-item-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .cart-item-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .cart-item-info {
+            flex-grow: 1;
+        }
+        .cart-item-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 160px;
+        }
+        .cart-item-info .price {
+            font-size: 13px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+        .cart-item-qty {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(7, 11, 20, 0.6);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 4px 10px;
+        }
+        .qty-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        .qty-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .cart-item-remove {
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 18px;
+            transition: var(--transition);
+            opacity: 0.7;
+        }
+        .cart-item-remove:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container navbar">
+            <div class="logo"><img src="https://img.icons8.com/nolan/64/drone.png" alt="Logo"> DronTech</div>
+            <nav>
+                <a href="#home">Asosiy</a>
+                <a href="#catalog">Katalog</a>
+                <a href="#advantages">Afzalliklar</a>
+                <a href="#services">Xizmatlar</a>
+                <a href="login.html" id="navLoginLink" style="margin-left: 24px; padding: 6px 16px; border: 1px solid var(--primary); border-radius: 20px; color: var(--primary); text-decoration: none; font-weight: 600; font-size: 14px; transition: var(--transition);">Kirish</a>
+                
+                <!-- Profile dropdown container -->
+                <div id="userProfileWrapper" style="display: none; position: relative; margin-left: 24px; vertical-align: middle;">
+                    <button id="profileDropdownBtn" style="background: rgba(255, 109, 0, 0.1); border: 1px solid var(--primary); border-radius: 20px; padding: 6px 16px; color: white; cursor: pointer; font-weight: 600; font-size: 14px; transition: var(--transition); display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-user"></i> <span id="profileNameText">Mijoz</span> <span style="font-size: 10px;">▼</span>
+                    </button>
+                    <!-- Dropdown Content -->
+                    <div id="profileDropdownContent" style="display: none; position: absolute; top: calc(100% + 10px); right: 0; background: rgba(7, 11, 20, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; width: 180px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 1000; padding: 10px 0; flex-direction: column;">
+                        <a href="#" id="viewMyOrdersLink" style="padding: 10px 15px; color: var(--text-main); text-decoration: none; font-size: 14px; font-weight: 500; transition: var(--transition); display: flex; align-items: center; gap: 8px; text-align: left;"><i class="fas fa-box" style="width: 16px;"></i> Buyurtmalarim</a>
+                        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.05); margin: 5px 0;">
+                        <button id="navLogoutBtn" style="padding: 10px 15px; color: var(--danger); background: transparent; border: none; cursor: pointer; width: 100%; text-align: left; font-size: 14px; font-weight: 500; transition: var(--transition); display: flex; align-items: center; gap: 8px;"><i class="fas fa-sign-out-alt" style="width: 16px;"></i> Chiqish</button>
+                    </div>
+                </div>
+
+                <button id="cartToggleBtn" style="position: relative; background: transparent; border: none; font-size: 18px; cursor: pointer; color: white; margin-left: 20px; vertical-align: middle; transition: var(--transition);">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cartCountBadge" style="position: absolute; top: -10px; right: -10px; background: var(--primary); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 1.5px solid #070b14;">0</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <section id="home" class="hero">
+        <div class="hero-overlay"></div>
+        <div class="container hero-content reveal">
+            <div class="badge">Rasmiy Diler</div>
+            <h1>Eng Yaxshi Dronlarni<br><span class="gradient-text">Bizdan Xarid Qiling</span></h1>
+            <p>Iste'molchi, professional va qishloq xo'jaligi dronlarini eng arzon narxlarda va rasmiy kafolat bilan xarid qiling.</p>
+            <div class="hero-actions">
+                <a href="#catalog" class="btn btn-primary">Katalogni Ko'rish</a>
+                <a href="#services" class="btn btn-secondary">Xizmatlar</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="catalog" class="section-padding">
+        <div class="container">
+            <h2 class="section-title reveal">Mahsulotlar <span class="gradient-text">Katalogi</span></h2>
+            <p class="section-subtitle reveal">Dronlar savdosi, ehtiyot qismlari va eng so'nggi modellar ijarasi</p>
+            
+            <!-- Category Filters -->
+            <div class="catalog-filters" style="display: flex; justify-content: center; gap: 15px; margin-bottom: 40px; flex-wrap: wrap;">
+                <button class="filter-btn active" data-filter="all" style="padding: 10px 24px; border: 1px solid var(--primary); border-radius: 30px; background: rgba(255, 109, 0, 0.1); color: white; font-weight: 600; cursor: pointer; transition: var(--transition);">Barchasi</button>
+                <button class="filter-btn" data-filter="dron" style="padding: 10px 24px; border: 1px solid rgba(255,255,255,0.1); border-radius: 30px; background: transparent; color: var(--text-muted); font-weight: 600; cursor: pointer; transition: var(--transition);">Dronlar</button>
+                <button class="filter-btn" data-filter="qism" style="padding: 10px 24px; border: 1px solid rgba(255,255,255,0.1); border-radius: 30px; background: transparent; color: var(--text-muted); font-weight: 600; cursor: pointer; transition: var(--transition);">Ehtiyot Qismlar</button>
+                <button class="filter-btn" data-filter="ijara" style="padding: 10px 24px; border: 1px solid rgba(255,255,255,0.1); border-radius: 30px; background: transparent; color: var(--text-muted); font-weight: 600; cursor: pointer; transition: var(--transition);">Dron Ijarasi</button>
+            </div>
+
+            <div class="grid-3" id="catalogGrid">
+                <!-- Dronlar JS orqali dinamik yuklanadi -->
+            </div>
+        </div>
+    </section>
+
+    <section id="advantages" class="section-padding bg-alt">
+        <div class="container">
+            <h2 class="section-title reveal">Nega aynan <span class="gradient-text">Biz?</span></h2>
+            <div class="grid-3">
+                <div class="card problem-card reveal">
+                    <div class="icon"><img src="https://img.icons8.com/nolan/64/guarantee.png" alt="Guarantee"></div>
+                    <h3>Rasmiy Kafolat</h3>
+                    <p>Barcha xarid qilingan dronlarga 1 yildan 3 yilgacha rasmiy ishlab chiqaruvchi kafolati beriladi.</p>
+                </div>
+                <div class="card problem-card reveal delay-1">
+                    <div class="icon"><img src="https://img.icons8.com/nolan/64/delivery.png" alt="Delivery"></div>
+                    <h3>Tezkor Yetkazib Berish</h3>
+                    <p>O'zbekiston bo'ylab 24 soat ichida mutlaqo bepul va xavfsiz yetkazib berish xizmati.</p>
+                </div>
+                <div class="card problem-card reveal delay-2">
+                    <div class="icon"><img src="https://img.icons8.com/nolan/64/customer-support.png" alt="Support"></div>
+                    <h3>Mutaxassis Maslahati</h3>
+                    <p>Dron tanlashda, sozlashda va uchishni o'rganishda tajribali mutaxassislarimiz bepul yordam beradi.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="services" class="section-padding">
+        <div class="container">
+            <h2 class="section-title reveal">Qo'shimcha <span class="gradient-text">Xizmatlar</span></h2>
+            <div class="grid-3">
+                <div class="revenue-box reveal glass-card" id="serviceTradeIn">
+                    <div class="rev-icon"><i class="fas fa-exchange-alt" style="color: var(--primary); text-shadow: 0 0 10px rgba(255,109,0,0.3);"></i></div>
+                    <h4>Trade-in (Almashtirish)</h4>
+                    <p>Eski droningizni baholatib, ustiga pul qo'shib yangisiga almashtirish imkoniyati.</p>
+                </div>
+                <div class="revenue-box reveal delay-1 glass-card" id="serviceRepair">
+                    <div class="rev-icon"><i class="fas fa-tools" style="color: var(--primary); text-shadow: 0 0 10px rgba(255,109,0,0.3);"></i></div>
+                    <h4>Ta'mirlash Markazi</h4>
+                    <p>Buzilgan dronlarni sifatli ehtiyot qismlar bilan tezkor va ishonchli ta'mirlash xizmati.</p>
+                </div>
+                <div class="revenue-box reveal delay-2 glass-card" id="serviceTraining">
+                    <div class="rev-icon"><i class="fas fa-graduation-cap" style="color: var(--primary); text-shadow: 0 0 10px rgba(255,109,0,0.3);"></i></div>
+                    <h4>Uchishni O'rganish</h4>
+                    <p>Yangi boshlovchilar uchun dronlarni xavfsiz va professional uchish kurslari.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="trade-in" class="section-padding bg-alt">
+        <div class="container">
+            <h2 class="section-title reveal">Trade-In: <span class="gradient-text">Eskisini Yangisiga Almashtiring</span></h2>
+            <div class="grid-3 text-center">
+                <div class="step-card reveal">
+                    <div class="step-num">1</div>
+                    <h3>Eski dronni olib keling</h3>
+                    <p>Ishlayotgan yoki ozgina nuqsoni bor droningizni bizning do'konga olib kelasiz.</p>
+                </div>
+                <div class="step-card reveal delay-1">
+                    <div class="step-num">2</div>
+                    <h3>Mutaxassis baholaydi</h3>
+                    <p>Ustalarimiz droningizning holatini 15 daqiqa ichida tekshirib, unga adolatli narx belgilashadi.</p>
+                </div>
+                <div class="step-card reveal delay-2">
+                    <div class="step-num">3</div>
+                    <h3>Yangisini olib keting</h3>
+                    <p>Belgilangan narxni chegirma sifatida ishlatib, o'zingizga yoqqan yangi modelni xarid qilasiz.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="delivery" class="section-padding">
+        <div class="container text-center">
+            <h2 class="section-title reveal">O'zbekiston Bo'ylab <span class="gradient-text">Yetkazib Berish</span></h2>
+            <div class="delivery-wrapper reveal glass-card" style="max-width: 800px; margin: 0 auto; padding: 40px;">
+                <img src="https://img.icons8.com/nolan/96/truck.png" alt="Delivery Truck" style="margin-bottom: 20px;">
+                <h3>Tez, Ishonchli, Bepul</h3>
+                <p style="margin-top: 15px; color: var(--text-muted); font-size: 18px;">Siz qayerda bo'lishingizdan qat'iy nazar, buyurtmangiz 24-48 soat ichida uyingizgacha xavfsiz tarzda yetkazib beriladi. Toshkent shahri ichida yetkazib berish va o'rgatish mutlaqo bepul!</p>
+                <button class="btn btn-primary" style="margin-top: 30px;">Buyurtma Berish</button>
+            </div>
+        </div>
+    </section>
+
+    
+    <!-- Rental Selection Modal -->
+    <div id="rentalModal" class="modal">
+        <div class="modal-content glass-card" style="text-align: left; padding: 30px; max-width: 480px; width: 90%;">
+            <span class="close-modal" id="closeRentalModalBtn">&times;</span>
+            <h2 style="margin-bottom: 10px; text-align: center; color: white;"><i class="fas fa-calendar-alt" style="color: var(--primary); margin-right: 8px;"></i> Ijara Tafsilotlari</h2>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px; text-align: center;">Dron ijarasi uchun boshlanish sanasi va kunini belgilang.</p>
+            
+            <div id="rentalProductInfo" style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 20px;">
+                <img id="rentalProductImg" src="" alt="Product Image" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">
+                <div>
+                    <h3 id="rentalProductName" style="font-size: 18px; margin-bottom: 5px; color: white;">-</h3>
+                    <span id="rentalProductPrice" style="font-size: 16px; font-weight: 800; color: var(--primary);">$0 / kun</span>
+                </div>
+            </div>
+
+            <form id="rentalForm">
+                <input type="hidden" id="rentalProductId">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label>Ijara boshlanish sanasi</label>
+                    <input type="hidden" id="rentalStartDate" required>
+                    
+                    <!-- Custom Premium Datepicker Calendar -->
+                    <div class="custom-calendar-widget" style="background: rgba(7, 11, 20, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 15px; margin-top: 5px; user-select: none;">
+                        <div class="calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <button type="button" id="calPrevMonth" style="background: transparent; border: none; color: white; cursor: pointer; font-size: 14px; transition: var(--transition); padding: 5px 10px;"><i class="fas fa-chevron-left"></i></button>
+                            <span id="calMonthYear" style="font-weight: 600; font-size: 14px; color: white; text-transform: capitalize;">-</span>
+                            <button type="button" id="calNextMonth" style="background: transparent; border: none; color: white; cursor: pointer; font-size: 14px; transition: var(--transition); padding: 5px 10px;"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                        <div class="calendar-weekdays" style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px;">
+                            <span>Du</span><span>Se</span><span>Ch</span><span>Pa</span><span>Ju</span><span>Sh</span><span>Ya</span>
+                        </div>
+                        <div class="calendar-days" id="calendarDaysGrid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; font-size: 12px;">
+                            <!-- Rendered dynamically by JS -->
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="rentalDaysCount">Ijara muddati (kun)</label>
+                    <input type="number" id="rentalDaysCount" class="form-control" min="1" value="1" style="background: rgba(7, 11, 20, 0.8); color: white;" required>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(255,109,0,0.05); border: 1px solid rgba(255,109,0,0.15); border-radius: 8px; margin-bottom: 20px;">
+                    <span style="font-weight: 600; color: var(--text-muted); font-size: 14px;">Umumiy ijara narxi:</span>
+                    <span id="rentalTotalCalc" style="font-size: 20px; font-weight: 800; color: var(--primary);">$0</span>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; border: none;">Savatga qo'shish</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Shopping Cart Sidebar Drawer (Slides from Right) -->
+    <aside id="cartSidebar" class="cart-sidebar">
+        <!-- Cart Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px;">
+            <h2 style="font-weight: 800; font-size: 22px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-shopping-cart"></i> Savatcha
+            </h2>
+            <span id="closeCartBtn" style="font-size: 32px; cursor: pointer; color: var(--text-muted); transition: var(--transition); line-height: 1;">&times;</span>
+        </div>
+        
+        <!-- Cart Items List (Scrollable) -->
+        <div id="cartItemsList" style="flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; padding-right: 5px;">
+            <!-- Dynamic Cart Items -->
+        </div>
+        
+        <!-- Cart Footer & Checkout Form Toggle -->
+        <div id="cartMainFooter" style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; margin-top: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <span style="font-weight: 600; color: var(--text-muted); font-size: 15px;">Jami summa:</span>
+                <span id="cartSubtotal" style="font-size: 24px; font-weight: 800; color: var(--primary);">$0</span>
+            </div>
+            <button id="goCheckoutBtn" class="btn btn-primary" style="width: 100%; border: none; padding: 14px; border-radius: 30px; font-weight: 600;">Buyurtma Berish</button>
+        </div>
+
+        <!-- Checkout Form Inside Sidebar (Initially Hidden) -->
+        <div id="cartCheckoutFormContainer" style="display: none; flex-direction: column; height: 100%; position: relative;">
+            <button id="backToCartBtn" style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 8px; margin-bottom: 20px; font-weight: 600; align-self: flex-start;">
+                <i class="fas fa-arrow-left"></i> Orqaga (Savat)
+            </button>
+            
+            <form id="cartCheckoutForm" style="display: flex; flex-direction: column; gap: 15px; flex-grow: 1; overflow-y: auto; padding-right: 5px;">
+                <div class="form-group">
+                    <label for="cartClientName">Sizning ismingiz</label>
+                    <input type="text" id="cartClientName" class="form-control" placeholder="Ismingizni kiriting" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="cartClientPhone">Telefon raqamingiz</label>
+                    <input type="tel" id="cartClientPhone" class="form-control" placeholder="+998 (__) ___-__-__" required>
+                </div>
+                
+                <!-- Rental options dynamically displayed if any rental is in the cart -->
+                <div id="cartRentalOptions" style="display: none; padding: 15px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; margin-bottom: 10px;">
+                    <p style="font-size: 12px; color: var(--primary); font-weight: 600; margin-bottom: 10px;"><i class="fas fa-calendar-alt"></i> Ijara tafsilotlari:</p>
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <label for="cartRentalDate" style="font-size: 11px;">Boshlanish sanasi</label>
+                        <input type="date" id="cartRentalDate" class="form-control" style="font-size: 13px; padding: 8px 12px; background: rgba(7, 11, 20, 0.8); color: white;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 5px;">
+                        <label for="cartRentalDays" style="font-size: 11px;">Ijara muddati (kun)</label>
+                        <input type="number" id="cartRentalDays" class="form-control" min="1" value="1" style="font-size: 13px; padding: 8px 12px; background: rgba(7, 11, 20, 0.8); color: white;">
+                    </div>
+                </div>
+
+                <!-- Payment Method Select -->
+                <div class="form-group">
+                    <label for="cartPaymentMethod">To'lov usuli</label>
+                    <select id="cartPaymentMethod" class="form-control" style="background: rgba(7, 11, 20, 0.8); color: white;" required>
+                        <option value="cash">Naqd pul / Yetkazganda to'lash</option>
+                        <option value="card">Plastik karta orqali onlayn to'lov</option>
+                    </select>
+                </div>
+
+                <!-- Animated Interactive Credit Card Container (Shown only when 'card' is selected) -->
+                <div id="creditCardSection" style="display: none; flex-direction: column; gap: 15px; margin-bottom: 10px;">
+                    <!-- Virtual 3D Card Box -->
+                    <div class="card-3d-wrapper">
+                        <div class="virtual-card" id="virtualCard">
+                            <!-- Card Front -->
+                            <div class="virtual-card-front">
+                                <div class="card-glow"></div>
+                                <div class="card-front-header">
+                                    <span class="card-brand"><i class="fas fa-microchip" style="margin-right: 6px;"></i> DronPay</span>
+                                    <div class="card-issuer-icon"><i class="fab fa-cc-visa" style="font-size: 26px;"></i></div>
+                                </div>
+                                <div class="card-number-display" id="cardNumDisp">•••• •••• •••• ••••</div>
+                                <div class="card-front-footer">
+                                    <div class="card-holder-box">
+                                        <span class="card-label">Karta Egasi</span>
+                                        <div class="card-holder-name" id="cardNameDisp">ISMI SHARIFI</div>
+                                    </div>
+                                    <div class="card-expiry-box">
+                                        <span class="card-label">Muddati</span>
+                                        <div class="card-expiry-date" id="cardExpiryDisp">AA/YY</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Card Back -->
+                            <div class="virtual-card-back">
+                                <div class="card-magnetic-strip"></div>
+                                <div class="card-back-cvv-box">
+                                    <span class="card-label" style="align-self: flex-end; margin-right: 15px; margin-bottom: 4px;">CVV</span>
+                                    <div class="card-cvv-strip">
+                                        <div class="card-cvv-white-line"></div>
+                                        <div class="card-cvv-text" id="cardCvvDisp">•••</div>
+                                    </div>
+                                </div>
+                                <div class="card-back-footer">
+                                    <span>Faqat demo xizmati uchun</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card Inputs -->
+                    <div class="form-group">
+                        <label for="cardNumber">Karta raqami</label>
+                        <input type="text" id="cardNumber" class="form-control" placeholder="8600 0000 0000 0000" autocomplete="off" maxlength="19">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group">
+                            <label for="cardExpiry">Muddati (OO/YY)</label>
+                            <input type="text" id="cardExpiry" class="form-control" placeholder="OO/YY" autocomplete="off" maxlength="5">
+                        </div>
+                        <div class="form-group">
+                            <label for="cardCvv">CVV/CVC</label>
+                            <input type="password" id="cardCvv" class="form-control" placeholder="•••" maxlength="3" autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="cartClientNotes">Yetkazib berish manzili / Izoh</label>
+                    <textarea id="cartClientNotes" class="form-control" rows="2" placeholder="Yetkazib berish manzili yoki boshqa izohlar..." style="resize: none;"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; border: none; padding: 14px; border-radius: 30px; font-weight: 600; margin-top: auto;">Buyurtmani Tasdiqlash</button>
+            </form>
+
+            <!-- Processing Payment Loading Screen Overlay -->
+            <div id="paymentLoaderOverlay" style="display: none; position: absolute; inset: 0; background: rgba(7, 11, 20, 0.95); backdrop-filter: blur(12px); z-index: 1000; align-items: center; justify-content: center; flex-direction: column; gap: 20px; border-radius: 20px;">
+                <div class="neon-spinner-box">
+                    <div class="neon-spinner-circle"></div>
+                    <i class="fas fa-lock" style="position: absolute; font-size: 20px; color: var(--primary);"></i>
+                </div>
+                <h3 style="font-weight: 800; font-size: 18px; color: var(--text-main); margin-bottom: 0px; text-align: center;">To'lov tekshirilmoqda...</h3>
+                <p style="color: var(--text-muted); font-size: 12px; text-align: center; max-width: 80%; line-height: 1.4;">Xavfsiz ulanish orqali buyurtma rasmiylashtirilmoqda. Iltimos kuting.</p>
+            </div>
+        </div>
+
+        <!-- Success Message inside Sidebar -->
+        <div id="cartCheckoutSuccess" style="display: none; text-align: center; margin: auto 0;">
+            <div style="margin-bottom: 15px; text-align: center;"><i class="fas fa-check-circle" style="color: var(--success); font-size: 55px;"></i></div>
+            <h3 style="color: var(--success); margin-bottom: 15px; font-size: 20px; font-weight: 800;">Rahmat!</h3>
+            <p style="color: var(--success); margin-bottom: 15px; font-weight: 600;">Buyurtmangiz qabul qilindi.</p>
+            <p style="color: var(--text-muted); font-size: 14px;">Tez orada sotuvchilarimiz siz bilan bog'lanishadi.</p>
+        </div>
+    </aside>
+
+    <!-- User Orders History Modal -->
+    <div id="userOrdersModal" class="modal">
+        <div class="modal-content glass-card" style="text-align: left; padding: 35px; max-width: 650px; width: 95%; border: 1px solid rgba(255,255,255,0.08);">
+            <span class="close-modal" id="closeOrdersModal" style="font-size: 28px; cursor: pointer; color: var(--text-muted);">&times;</span>
+            <h2 style="margin-bottom: 10px; text-align: center; font-weight: 800; font-size: 24px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Mening Buyurtmalarim</h2>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 25px; text-align: center;">Buyurtmalaringiz va ularning yetkazilish holati</p>
+            
+            <div style="max-height: 350px; overflow-y: auto; padding-right: 5px; margin-bottom: 10px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--text-muted);">
+                            <th style="padding: 10px 5px; font-weight: 600;">Buyurtma</th>
+                            <th style="padding: 10px 5px; font-weight: 600;">Mahsulotlar</th>
+                            <th style="padding: 10px 5px; font-weight: 600;">Summa</th>
+                            <th style="padding: 10px 5px; font-weight: 600;">Sana</th>
+                            <th style="padding: 10px 5px; font-weight: 600; text-align: right;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userOrdersHistoryTableBody">
+                        <!-- Dynamic orders rows -->
+                    </tbody>
+                </table>
+                
+                <div id="noOrdersHistoryMessage" style="display: none; text-align: center; padding: 40px 0; color: var(--text-muted);">
+                    <div style="margin-bottom: 15px; text-align: center; color: var(--text-muted);"><i class="fas fa-box-open" style="font-size: 45px;"></i></div>
+                    <p>Sizda hali buyurtmalar mavjud emas.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <!-- Column 1: About -->
+                <div class="footer-col footer-about">
+                    <div class="footer-logo">DronTech</div>
+                    <p>O'zbekistonda eng zamonaviy va yuqori sifatli dronlarni sotish, ijaraga berish va ehtiyot qismlarini yetkazib berish xizmati.</p>
+                    <p class="footer-slogan">Eng zo'r dronlar — siz uchun!</p>
+                    <div class="footer-socials">
+                        <a href="#" aria-label="Telegram" id="footerSocialTelegram"><i class="fab fa-telegram-plane"></i></a>
+                        <a href="#" aria-label="Instagram" id="footerSocialInstagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="YouTube" id="footerSocialYouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" aria-label="Facebook" id="footerSocialFacebook"><i class="fab fa-facebook-f"></i></a>
+                    </div>
+                </div>
+
+                <!-- Column 2: Quick Links -->
+                <div class="footer-col">
+                    <h4>Tezkor Linklar</h4>
+                    <ul class="footer-links">
+                        <li><a href="#hero" id="footerLinkHome">Bosh sahifa</a></li>
+                        <li><a href="#catalog" id="footerLinkCatalog">Katalog</a></li>
+                        <li><a href="#tradein" id="footerLinkTradein">Trade-In</a></li>
+                        <li><a href="#delivery" id="footerLinkDelivery">Yetkazib berish</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: Contact Info -->
+                <div class="footer-col">
+                    <h4>Aloqa</h4>
+                    <ul class="footer-contact">
+                        <li><i class="fas fa-map-marker-alt"></i> Toshkent sh., Chilonzor 5-daha</li>
+                        <li><i class="fas fa-phone-alt"></i> +998 (90) 123-45-67</li>
+                        <li><i class="fas fa-envelope"></i> info@drontech.uz</li>
+                    </ul>
+                </div>
+
+                <!-- Column 4: Newsletter -->
+                <div class="footer-col footer-newsletter">
+                    <h4>Yangiliklar</h4>
+                    <p>Eng so'nggi dron modellari va aksiyalar haqida xabardor bo'ling.</p>
+                    <form class="newsletter-form" id="footerNewsletterForm" onsubmit="event.preventDefault(); alert('Obuna bo\'lganingiz uchun rahmat!'); this.reset();">
+                        <input type="email" id="footerNewsletterEmail" placeholder="Emailingiz" required>
+                        <button type="submit" id="footerNewsletterSubmit"><i class="fas fa-paper-plane"></i></button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Footer Bottom -->
+            <div class="footer-bottom">
+                <p>&copy; 2026 DronTech. Barcha huquqlar himoyalangan.</p>
+                <div class="footer-bottom-links">
+                    <a href="#" id="footerBottomLinkTerms">Foydalanish shartlari</a>
+                    <a href="#" id="footerBottomLinkPrivacy">Maxfiylik siyosati</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
+    <script src="dashboard.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

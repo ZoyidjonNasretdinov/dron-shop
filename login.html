@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DronTech Dashboard - Kirish</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 109, 0, 0.08), transparent 60%);
+        }
+        
+        .login-card {
+            width: 100%;
+            max-width: 440px;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            animation: cardAppear 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient);
+        }
+        
+        .login-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+        
+        .login-logo img {
+            height: 40px;
+        }
+        
+        .login-subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 35px;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: none;
+            text-align: left;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 25px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+        
+        .back-link:hover {
+            color: var(--primary);
+        }
+        
+        .demo-creds {
+            margin-top: 25px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            font-size: 12px;
+            color: var(--text-muted);
+            text-align: left;
+        }
+        
+        .demo-creds p {
+            margin-bottom: 5px;
+        }
+        
+        .demo-creds strong {
+            color: var(--text-main);
+        }
+
+        @keyframes cardAppear {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* New custom tabs */
+        .login-tabs {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 25px;
+            gap: 10px;
+        }
+        
+        .login-tab {
+            flex: 1;
+            padding: 12px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 15px;
+            transition: var(--transition);
+            border-bottom: 2px solid transparent;
+        }
+        
+        .login-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        
+        .form-container {
+            display: none;
+            animation: formFade 0.4s ease;
+        }
+        
+        .form-container.active {
+            display: block;
+        }
+        
+        @keyframes formFade {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Demo Credentials Styling */
+        .demo-creds {
+            margin-top: 25px;
+            padding: 18px;
+            background: rgba(255, 109, 0, 0.02);
+            border: 1px solid rgba(255, 109, 0, 0.15);
+            border-radius: 12px;
+            font-size: 12px;
+            color: var(--text-muted);
+            text-align: left;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .demo-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        
+        .demo-row:last-child {
+            border-bottom: none;
+        }
+        
+        .copy-btn {
+            background: rgba(255, 109, 0, 0.1);
+            border: 1px solid rgba(255, 109, 0, 0.2);
+            color: var(--primary-light);
+            cursor: pointer;
+            padding: 3px 8px;
+            font-size: 10px;
+            border-radius: 6px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .copy-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: transparent;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-10px);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container navbar">
+            <a href="index.html" class="logo" style="text-decoration: none;">
+                <img src="https://img.icons8.com/nolan/64/drone.png" alt="Logo"> DronTech
+            </a>
+            <nav>
+                <a href="index.html">Asosiy sayt</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="login-container">
+            <article class="login-card glass-card">
+                <div class="login-logo">
+                    <img src="https://img.icons8.com/nolan/64/drone.png" alt="Logo">
+                    <span>DronTech</span>
+                </div>
+                
+                <!-- Custom Form Tabs -->
+                <div class="login-tabs">
+                    <div class="login-tab active" id="loginTabBtn" onclick="toggleForm('login')">Kirish</div>
+                    <div class="login-tab" id="registerTabBtn" onclick="toggleForm('register')">Ro'yxatdan O'tish</div>
+                </div>
+
+                <!-- LOGIN FORM -->
+                <div id="loginFormContainer" class="form-container active">
+                    <p class="login-subtitle">Boshqaruv paneliga kirish uchun ma'lumotlarni kiriting</p>
+                    <div id="loginErrorAlert" class="error-message">
+                        <i class="fas fa-exclamation-triangle"></i> Email yoki parol noto'g'ri kiritildi!
+                    </div>
+                    
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="email">E-pochta manzili</label>
+                            <input type="email" id="email" class="form-control" placeholder="nomi@gmail.com" required autocomplete="email">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password">Maxfiy parol</label>
+                            <input type="password" id="password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary login-btn">Tizimga Kirish</button>
+                    </form>
+                </div>
+
+                <!-- REGISTER FORM -->
+                <div id="registerFormContainer" class="form-container">
+                    <p class="login-subtitle">Yangi profil yaratish uchun ma'lumotlarni to'ldiring</p>
+                    <div id="registerErrorAlert" class="error-message">
+                        <i class="fas fa-exclamation-triangle"></i> Xatolik yuz berdi!
+                    </div>
+                    
+                    <form id="registerForm">
+                        <div class="form-group">
+                            <label for="regName">Ismingiz va familiyangiz</label>
+                            <input type="text" id="regName" class="form-control" placeholder="Masalan: Jaloliddin Rustamov" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="regEmail">E-pochta manzili</label>
+                            <input type="email" id="regEmail" class="form-control" placeholder="nomi@gmail.com" required autocomplete="email">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="regPassword">Maxfiy parol</label>
+                            <input type="password" id="regPassword" class="form-control" placeholder="••••••••" required autocomplete="new-password">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="regConfirmPassword">Parolni tasdiqlash</label>
+                            <input type="password" id="regConfirmPassword" class="form-control" placeholder="••••••••" required autocomplete="new-password">
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary login-btn">Ro'yxatdan O'tish</button>
+                    </form>
+                </div>
+                
+                <!-- Demo Credentials Box -->
+                <div class="demo-creds">
+                    <p style="font-weight: 700; color: var(--primary); margin-bottom: 8px;"><i class="fas fa-key"></i> Tizim Parollari (Demo):</p>
+                    
+                    <div class="demo-row">
+                        <span><strong>Admin:</strong> admin@gmail.com / admin123</span>
+                        <button class="copy-btn" onclick="copyCreds('admin@gmail.com', 'admin123')">
+                            <i class="far fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    
+                    <div class="demo-row">
+                        <span><strong>Seller:</strong> seller@gmail.com / admin123</span>
+                        <button class="copy-btn" onclick="copyCreds('seller@gmail.com', 'admin123')">
+                            <i class="far fa-copy"></i> Copy
+                        </button>
+                    </div>
+
+                    <div class="demo-row">
+                        <span><strong>User:</strong> user@gmail.com / admin123</span>
+                        <button class="copy-btn" onclick="copyCreds('user@gmail.com', 'admin123')">
+                            <i class="far fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+                
+                <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Asosiy sahifaga qaytish</a>
+            </article>
+        </section>
+    </main>
+
+    <div id="toast" class="toast">Nusxalandi!</div>
+
+    <script src="dashboard.js"></script>
+    <script>
+        // Redirect if already logged in
+        const user = DB.getCurrentUser();
+        if (user) {
+            if (user.role === 'admin') window.location.href = 'admin.html';
+            else if (user.role === 'seller') window.location.href = 'seller.html';
+            else window.location.href = 'index.html';
+        }
+
+        // Toggle Tabs
+        function toggleForm(type) {
+            const loginBtn = document.getElementById("loginTabBtn");
+            const registerBtn = document.getElementById("registerTabBtn");
+            const loginForm = document.getElementById("loginFormContainer");
+            const registerForm = document.getElementById("registerFormContainer");
+            const loginError = document.getElementById("loginErrorAlert");
+            const registerError = document.getElementById("registerErrorAlert");
+
+            loginError.style.display = "none";
+            registerError.style.display = "none";
+
+            if (type === 'login') {
+                loginBtn.classList.add("active");
+                registerBtn.classList.remove("active");
+                loginForm.classList.add("active");
+                registerForm.classList.remove("active");
+            } else {
+                loginBtn.classList.remove("active");
+                registerBtn.classList.add("active");
+                loginForm.classList.remove("active");
+                registerForm.classList.add("active");
+            }
+        }
+
+        // Copy credentials to clipboard
+        function copyCreds(email, password) {
+            const textToCopy = `${email}\t${password}`;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast("Email va parol nusxalandi!");
+            }).catch(err => {
+                // Fallback
+                const el = document.createElement('textarea');
+                el.value = `${email} / ${password}`;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                showToast("Nusxalandi!");
+            });
+        }
+
+        // Show dynamic toast message
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.textContent = message;
+            toast.classList.add("show");
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 2000);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const loginForm = document.getElementById("loginForm");
+            const registerForm = document.getElementById("registerForm");
+            const loginErrorAlert = document.getElementById("loginErrorAlert");
+            const registerErrorAlert = document.getElementById("registerErrorAlert");
+            
+            // Login handler
+            loginForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                loginErrorAlert.style.display = "none";
+                
+                const email = document.getElementById("email").value.trim();
+                const password = document.getElementById("password").value;
+                
+                const successUser = DB.login(email, password);
+                if (successUser) {
+                    showToast("Tizimga muvaffaqiyatli kirildi!");
+                    setTimeout(() => {
+                        if (successUser.role === 'admin') {
+                            window.location.href = 'admin.html';
+                        } else if (successUser.role === 'seller') {
+                            window.location.href = 'seller.html';
+                        } else {
+                            window.location.href = 'index.html';
+                        }
+                    }, 800);
+                } else {
+                    loginErrorAlert.style.display = "block";
+                }
+            });
+
+            // Register handler
+            registerForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                registerErrorAlert.style.display = "none";
+
+                const name = document.getElementById("regName").value.trim();
+                const email = document.getElementById("regEmail").value.trim();
+                const password = document.getElementById("regPassword").value;
+                const confirmPassword = document.getElementById("regConfirmPassword").value;
+
+                if (password !== confirmPassword) {
+                    registerErrorAlert.textContent = "Parollar mos kelmadi!";
+                    registerErrorAlert.style.display = "block";
+                    return;
+                }
+
+                if (password.length < 6) {
+                    registerErrorAlert.textContent = "Parol kamida 6 ta belgidan iborat bo'lishi kerak!";
+                    registerErrorAlert.style.display = "block";
+                    return;
+                }
+
+                const result = DB.register(name, email, password);
+                if (result.success) {
+                    showToast("Muvaffaqiyatli ro'yxatdan o'tdingiz!");
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                } else {
+                    registerErrorAlert.textContent = result.message;
+                    registerErrorAlert.style.display = "block";
+                }
+            });
+        });
+    </script>
+</body>
+</html>
